@@ -1,7 +1,7 @@
 import click
 
 from emails import send_email
-from options import OptionReport
+from reports.options import OptionReport
 from storage import upload_to_storage
 
 
