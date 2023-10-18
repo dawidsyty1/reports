@@ -2,10 +2,11 @@ from typing import Optional
 
 import pandas as pd
 from openbb_terminal.stocks.options import op_helpers
+from datetime import datetime, timedelta
 
 
-# Volatile Concentration
-def volatile_concentration(chain, filter_less_then: int = 0):
+def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0):
+    """Filter expirations with less then."""
     print("volatile concentration...")
     expiration_concentraion = {}
 
@@ -15,15 +16,28 @@ def volatile_concentration(chain, filter_less_then: int = 0):
         expiration_concentraion[expiry] = call + puts
 
     return_expiration_concentraion = {}
+
     # Filter less then 1k Volume:
     for key in expiration_concentraion:
         if expiration_concentraion[key] > filter_less_then:
             return_expiration_concentraion[key] = expiration_concentraion[key]
 
     if not len(return_expiration_concentraion) and filter_less_then:
-        return volatile_concentration(chain, filter_less_then - 1000)
+        return filter_active_volume_expirations(chain, filter_less_then - 1000)
 
-    return return_expiration_concentraion
+    expirations = []
+    dte = {
+        (datetime.strptime(exp, "%Y-%m-%d") - datetime.now()).days: exp
+        for exp in return_expiration_concentraion
+    }
+
+    # get expirations for options 50, 100 and 150 dte
+    for close_to_in_days in [150, 100, 50]:
+        dte_close_to = min(dte.keys(), key=lambda x: abs(x - close_to_in_days))
+        expirations.append(dte[dte_close_to])
+        del dte[dte_close_to]
+
+    return expirations
 
 
 def call_put_walls(chain, current_price):

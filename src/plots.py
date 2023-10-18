@@ -2,7 +2,7 @@ import base64
 from datetime import datetime, timedelta
 from pathlib import Path
 
-
+from typing import List
 import pandas as pd
 import talib
 import yfinance as yf
@@ -14,7 +14,7 @@ from openbb_terminal.stocks import stocks_helper
 from openbb_terminal.stocks.options import yfinance_model
 
 
-def full_image_path(file_name):
+def temporary_image_path(file_name):
     Path("/tmp/images/").mkdir(parents=True, exist_ok=True)
     return "/tmp/images/" + file_name + ".png"
 
@@ -52,7 +52,7 @@ def expiration_concentration_plot(chain, concentration="volume"):
         width=0.8,
     )
 
-    full_path = full_image_path("expiration_concentration")
+    full_path = temporary_image_path("expiration_concentration")
     option_absolute_plot.write_image(
         full_path, format=None, scale=None, width=1600, height=1024, validate=True
     )
@@ -174,7 +174,7 @@ def absolute_options_concentration_plot(
         )
 
     option_absolute_plot.update_layout()
-    full_path = full_image_path("absolute_volume")
+    full_path = temporary_image_path("absolute_volume")
     option_absolute_plot.write_image(
         full_path, format=None, scale=None, width=1600, height=1024, validate=True
     )
@@ -216,7 +216,7 @@ def stock_plot_with_extra_data(stock, levels):
             line=dict(dash="dash", width=0.5, color=color_per_level(level)),
         )
     stock_plot.update_layout(showlegend=True, xaxis=dict(type="category"))
-    full_path = full_image_path("stock_plot_with_extra_data")
+    full_path = temporary_image_path("stock_plot_with_extra_data")
     stock_plot.write_image(
         full_path, format=None, scale=None, width=1600, height=1024, validate=True
     )
@@ -255,20 +255,11 @@ def one_day_plot_with_extra_data(symbol, levels):
     return htmlcode
 
 
-def rsi_options_plot(symbol, volume_concentration, show_put=True):
+def rsi_options_plot(symbol, expirations: List[str], show_put=True):
+    """Following plot shows RSI momentum for options with different expirations days."""
+
     tk = yf.Ticker(symbol)
     current_price = yfinance_model.get_price(symbol)
-    dte = {
-        (datetime.strptime(exp, "%Y-%m-%d") - datetime.now()).days: exp
-        for exp in volume_concentration
-    }
-    expirations = []
-
-    # get expirations for options 50, 100 and 150 dte
-    for close_to_in_days in [150, 100, 50]:
-        dte_close_to = min(dte.keys(), key=lambda x: abs(x - close_to_in_days))
-        expirations.append(dte[dte_close_to])
-        del dte[dte_close_to]
 
     option_plot = None
     color_per_expiration = {
@@ -339,7 +330,7 @@ def rsi_options_plot(symbol, volume_concentration, show_put=True):
     print(symbol, options_type, option_strike)
 
     if option_plot:
-        full_path = full_image_path(f"{symbol}")
+        full_path = temporary_image_path(f"{symbol}")
         option_plot.write_image(
             full_path, format=None, scale=None, width=1600, height=1024, validate=True
         )

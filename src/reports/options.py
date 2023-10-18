@@ -21,9 +21,9 @@ class OptionReport(Report):
         full_chain["strike"] = full_chain["strike"].astype(float)
         current_price = yfinance_model.get_price(symbol)
 
-        volume_concentration = options.volatile_concentration(full_chain, filter_less_then=1000)
-        htmlcode += plots.rsi_options_plot(symbol, volume_concentration, False)
-        htmlcode += plots.rsi_options_plot(symbol, volume_concentration)
+        expirations = options.filter_active_volume_expirations(full_chain, filter_less_then=1000)
+        htmlcode += plots.rsi_options_plot(symbol, expirations, False)
+        htmlcode += plots.rsi_options_plot(symbol, expirations)
 
         levels = options.options_levels(full_chain, current_price)
         htmlcode += plots.long_period_plot_with_extra_data(symbol, levels)
