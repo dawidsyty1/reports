@@ -8,11 +8,12 @@ compile-requirements: ## Compile requirements (using pip-compile)
 builddev:
 	docker-compose build
 
-run:
-	docker-compose run generator bash
+run-lab:
+	docker-compose run lab
 
 generate: ## generate reports
 	docker-compose run generator bash -c "python src/main.py"
 
 generate-send: ## generate report and send it
 	docker-compose run generator bash -c "python src/main.py --send=True"
+

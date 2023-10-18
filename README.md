@@ -5,10 +5,11 @@ As a main libraries I'm using https://openbb.co/ and https://technical-analysis-
 
 
 # Setup
-Create env file with:
+Create .env file with:
 
     GOOGLE_APPLICATION_CREDENTIALS=""
     SMTP_API_KEY=""
+    BUCKET_NAME=""
     LOGLEVEL=""
 
 Build docker
@@ -16,5 +17,4 @@ Build docker
     make builddev
 
 Generate simple HTML report:
-
     make generate

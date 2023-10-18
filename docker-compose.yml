@@ -4,3 +4,13 @@ generator:
   volumes:
     - .:/usr/src/app
   env_file: .env
+
+lab:
+  build: .
+  dockerfile: Dockerfile
+  ports:
+    - "8888:8888"
+  volumes:
+    - .:/usr/src/app
+  env_file: .env
+  command: 'jupyter lab --ip 0.0.0.0 --NotebookApp.token="" --NotebookApp.password="" --allow-root'
