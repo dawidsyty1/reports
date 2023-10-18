@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -7,7 +8,7 @@ from openbb_terminal.stocks.options import op_helpers
 
 def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0):
     """Filter expirations with less then."""
-    print("volatile concentration...")
+    logging.info("volatile concentration...")
     expiration_concentraion = {}
 
     for expiry, local_chain in chain.groupby(["expiration"]):
@@ -41,7 +42,7 @@ def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int 
 
 
 def call_put_walls(chain, current_price):
-    print("Call Put walls...")
+    logging.info("Call Put walls...")
     min_strike = 0.95 * current_price
     max_strike = 1.05 * current_price
 
@@ -87,7 +88,7 @@ def call_put_walls(chain, current_price):
 
 def options_levels(full_chain, current_price):
     # calculate largest gamma
-    print("Calculating options levels...")
+    logging.info("Calculating options levels...")
     put_wall, call_wall = call_put_walls(full_chain, current_price)
     levels = {
         "Curent price": current_price,
@@ -155,7 +156,7 @@ def options_levels(full_chain, current_price):
 
 def largest_gamma(full_chain, current_price):
     # calculate largest gamma
-    print("Calculating largest gamma...")
+    logging.info("Calculating largest gamma...")
     div_cont: float = 0
     rf: Optional[float] = None
     opt_type: int = 1

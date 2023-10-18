@@ -1,4 +1,5 @@
 import base64
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
@@ -19,9 +20,15 @@ def temporary_image_path(file_name):
     return "/tmp/images/" + file_name + ".png"
 
 
+def htmlcode_image(image_path: str) -> str:
+    bytes = base64.b64encode(open(image_path, "rb").read()).decode("utf-8")
+    htmlcode = f'<img src="data:image/png;base64,{bytes}">'
+    return htmlcode
+
+
 # Expiration Concentration
 def expiration_concentration_plot(chain, concentration="volume"):
-    print(f"Expiration concentration for {concentration}...")
+    logging.info(f"Expiration concentration for {concentration}...")
     expiration_concentraion = {"expiry": [], "call": [], "put": []}
     # openInterest
 
@@ -58,9 +65,7 @@ def expiration_concentration_plot(chain, concentration="volume"):
     )
 
     htmlcode = widgets.h(5, f"expiration concentration for {concentration}")
-    htmlcode += '<img src="data:image/png;base64,{0}">'.format(
-        base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
-    )
+    htmlcode += htmlcode_image(full_path)
     return htmlcode
 
 
@@ -89,7 +94,7 @@ def absolute_options_concentration_plot(
         put_field_name = "openInterest_put"
 
     # option chain calculation require for absolute volume
-    print(
+    logging.info(
         f"Absolute {concentration} for\
         only_current_expiration={only_current_expiration}: {current_expiration},\
         only_next_friday_expiration={only_next_friday_expiration}"
@@ -185,9 +190,7 @@ def absolute_options_concentration_plot(
         only_next_friday_expiration={only_next_friday_expiration}",
     )
 
-    htmlcode += '<img src="data:image/png;base64,{0}">'.format(
-        base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
-    )
+    htmlcode += htmlcode_image(full_path)
     return htmlcode
 
 
@@ -220,9 +223,7 @@ def stock_plot_with_extra_data(stock, levels):
     stock_plot.write_image(
         full_path, format=None, scale=None, width=1600, height=1024, validate=True
     )
-    htmlcode = '<img src="data:image/png;base64,{0}">'.format(
-        base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
-    )
+    htmlcode = htmlcode_image(full_path)
     return htmlcode
 
 
@@ -239,7 +240,7 @@ def long_period_plot_with_extra_data(symbol, levels):
 
 
 def one_day_plot_with_extra_data(symbol, levels):
-    print(f"Stock with extra data {symbol}...")
+    logging.info(f"Stock with extra data {symbol}...")
 
     days_left = 3
     if datetime.now().today().weekday() == 0 or datetime.now().today().weekday() == 1:
@@ -290,7 +291,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True):
             option_symbol = close_to["contractSymbol"].iloc[0]
             option_strike = close_to["strike"].iloc[0]
 
-        print(option_symbol)
+        logging.info(option_symbol)
         option_data = yf.download(option_symbol)
 
         option_data["rsi"] = (
@@ -327,7 +328,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True):
         )
     options_type = "PUT:" if show_put else "CALL:"
 
-    print(symbol, options_type, option_strike)
+    logging.info(f"{symbol} {options_type}, {option_strike}")
 
     if option_plot:
         full_path = temporary_image_path(f"{symbol}")
@@ -340,9 +341,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True):
         )
         options_type = "PUT:" if show_put else "CALL:"
         htmlcode += widgets.h(5, f"{options_type}: STRIKE: {int(option_strike)}")
-        htmlcode += '<img src="data:image/png;base64,{0}">'.format(
-            base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
-        )
+        htmlcode += htmlcode_image(full_path)
     else:
         htmlcode = widgets.h(
             5,

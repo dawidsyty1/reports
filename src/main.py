@@ -1,8 +1,17 @@
+import logging
+import os
+
 import click
 
 from emails import send_email
 from reports.options import OptionReport
 from storage import upload_to_storage
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=os.environ.get("LOGLEVEL", "INFO"),
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 @click.command()
