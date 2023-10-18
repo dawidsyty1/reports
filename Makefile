@@ -19,5 +19,5 @@ generate-send: ## generate report and send it
 
 update_and_generate: ## update code and generate report
 	git pull origin main
-	builddev
-	generate-send
+	docker-compose build
+	docker-compose run generator bash -c "python src/main.py --send=True"
