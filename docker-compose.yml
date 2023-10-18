@@ -1,0 +1,6 @@
+generator:
+  build: .
+  dockerfile: Dockerfile
+  volumes:
+    - .:/usr/src/app
+  env_file: .env

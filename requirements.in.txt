@@ -1,0 +1,7 @@
+pip-tools
+requests
+openbb
+TA-Lib
+google-cloud-storage
+kaleido
+sib-api-v3-sdk
