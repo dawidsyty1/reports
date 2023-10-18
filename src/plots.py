@@ -15,19 +15,23 @@ from openbb_terminal.stocks import stocks_helper
 from openbb_terminal.stocks.options import yfinance_model
 
 
-def temporary_image_path(file_name):
+def temporary_image_path(file_name: str):
     Path("/tmp/images/").mkdir(parents=True, exist_ok=True)
     return "/tmp/images/" + file_name + ".png"
 
 
-def htmlcode_image(image_path: str) -> str:
-    bytes = base64.b64encode(open(image_path, "rb").read()).decode("utf-8")
+def plot_to_html_image(plot: OpenBBFigure, file_name: str) -> str:
+    full_path = temporary_image_path(file_name)
+    plot.write_image(
+        full_path, format=None, scale=None, width=1600, height=1024, validate=True
+    )
+    bytes = base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
     htmlcode = f'<img src="data:image/png;base64,{bytes}">'
     return htmlcode
 
 
 # Expiration Concentration
-def expiration_concentration_plot(chain, concentration="volume"):
+def expiration_concentration_plot(chain: pd.DataFrame, concentration: str = "volume") -> str:
     logging.info(f"Expiration concentration for {concentration}...")
     expiration_concentraion = {"expiry": [], "call": [], "put": []}
     # openInterest
@@ -59,23 +63,18 @@ def expiration_concentration_plot(chain, concentration="volume"):
         width=0.8,
     )
 
-    full_path = temporary_image_path("expiration_concentration")
-    option_absolute_plot.write_image(
-        full_path, format=None, scale=None, width=1600, height=1024, validate=True
-    )
-
     htmlcode = widgets.h(5, f"expiration concentration for {concentration}")
-    htmlcode += htmlcode_image(full_path)
+    htmlcode += plot_to_html_image(option_absolute_plot, 'expiration_concentration')
     return htmlcode
 
 
 def absolute_options_concentration_plot(
-    chain,
-    current_price,
-    only_current_expiration=False,
-    only_next_friday_expiration=False,
-    concentration="volume",
-):
+    chain: pd.DataFrame,
+    current_price: float,
+    only_current_expiration: bool = False,
+    only_next_friday_expiration: bool = False,
+    concentration: str = "volume",
+) -> str:
     current_expiration = chain.expiration.iloc[0]
     if only_current_expiration:
         chain = chain[chain["expiration"] == current_expiration]
@@ -179,22 +178,17 @@ def absolute_options_concentration_plot(
         )
 
     option_absolute_plot.update_layout()
-    full_path = temporary_image_path("absolute_volume")
-    option_absolute_plot.write_image(
-        full_path, format=None, scale=None, width=1600, height=1024, validate=True
-    )
-
     htmlcode = widgets.h(
         5,
         f"Abosulte {concentration}: only_current_expiration={only_current_expiration}: {current_expiration}, \
         only_next_friday_expiration={only_next_friday_expiration}",
     )
 
-    htmlcode += htmlcode_image(full_path)
+    htmlcode += plot_to_html_image(option_absolute_plot, 'absolute_volume')
     return htmlcode
 
 
-def color_per_level(level):
+def color_per_level(level: str) -> str:
     color_per_type = {
         "Put wall": "red",
         "Curent price": "yellow",
@@ -208,7 +202,7 @@ def color_per_level(level):
     return color
 
 
-def stock_plot_with_extra_data(stock, levels):
+def stock_plot_with_extra_data(stock: pd.DataFrame, levels: List[str]) -> str:
     ta = PlotlyTA()
     stock_plot = ta.plot(stock)
     for level in levels:
@@ -219,15 +213,11 @@ def stock_plot_with_extra_data(stock, levels):
             line=dict(dash="dash", width=0.5, color=color_per_level(level)),
         )
     stock_plot.update_layout(showlegend=True, xaxis=dict(type="category"))
-    full_path = temporary_image_path("stock_plot_with_extra_data")
-    stock_plot.write_image(
-        full_path, format=None, scale=None, width=1600, height=1024, validate=True
-    )
-    htmlcode = htmlcode_image(full_path)
+    htmlcode = plot_to_html_image(stock_plot, 'stock_plot_with_extra_data')
     return htmlcode
 
 
-def long_period_plot_with_extra_data(symbol, levels):
+def long_period_plot_with_extra_data(symbol: str, levels: List[str]) -> str:
     start_date = datetime.strftime(
         datetime.now() + relativedelta(months=-3), "%Y-%m-%d"
     )
@@ -239,7 +229,7 @@ def long_period_plot_with_extra_data(symbol, levels):
     return htmlcode
 
 
-def one_day_plot_with_extra_data(symbol, levels):
+def one_day_plot_with_extra_data(symbol: str, levels: List[str]) -> str:
     logging.info(f"Stock with extra data {symbol}...")
 
     days_left = 3
@@ -256,7 +246,7 @@ def one_day_plot_with_extra_data(symbol, levels):
     return htmlcode
 
 
-def rsi_options_plot(symbol, expirations: List[str], show_put=True):
+def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
     """Following plot shows RSI momentum for options with different expirations days."""
 
     tk = yf.Ticker(symbol)
@@ -331,17 +321,12 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True):
     logging.info(f"{symbol} {options_type}, {option_strike}")
 
     if option_plot:
-        full_path = temporary_image_path(f"{symbol}")
-        option_plot.write_image(
-            full_path, format=None, scale=None, width=1600, height=1024, validate=True
-        )
-
         htmlcode = widgets.h(
             5, f"The RSI momentum plot for following options expirations {expirations}."
         )
         options_type = "PUT:" if show_put else "CALL:"
         htmlcode += widgets.h(5, f"{options_type}: STRIKE: {int(option_strike)}")
-        htmlcode += htmlcode_image(full_path)
+        htmlcode += plot_to_html_image(option_plot, 'rsi_options_plot')
     else:
         htmlcode = widgets.h(
             5,
