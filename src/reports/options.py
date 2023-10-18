@@ -1,10 +1,12 @@
 from datetime import datetime
+
 from openbb_terminal.reports import widget_helpers as widgets
 from openbb_terminal.stocks.options import yfinance_model
 
-from reports.base import Report
 import options
 import plots
+from reports.base import Report
+
 
 def should_include_friday(symbol: str):
     symbols_list = ["SPY"]
@@ -21,7 +23,9 @@ class OptionReport(Report):
         full_chain["strike"] = full_chain["strike"].astype(float)
         current_price = yfinance_model.get_price(symbol)
 
-        expirations = options.filter_active_volume_expirations(full_chain, filter_less_then=1000)
+        expirations = options.filter_active_volume_expirations(
+            full_chain, filter_less_then=1000
+        )
         htmlcode += plots.rsi_options_plot(symbol, expirations, False)
         htmlcode += plots.rsi_options_plot(symbol, expirations)
 

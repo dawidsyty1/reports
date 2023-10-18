@@ -1,8 +1,8 @@
+from datetime import datetime
 from typing import Optional
 
 import pandas as pd
 from openbb_terminal.stocks.options import op_helpers
-from datetime import datetime, timedelta
 
 
 def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0):

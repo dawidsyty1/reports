@@ -21,3 +21,6 @@ update_and_generate: ## update code and generate report
 	git pull origin main
 	docker-compose build
 	docker-compose run generator bash -c "python src/main.py --send=True"
+
+check_pre_commit: ## check pre-commit
+	pre-commit run --all-files
