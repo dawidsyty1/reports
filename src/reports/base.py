@@ -30,9 +30,17 @@ class Report:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
         self.body += widgets.add_tab(symbol, htmlcode)
 
+    def retry_processing(self, symbol: str, retry: int=3):
+        try:
+            self.process_symbol(symbol)
+        except Exception:
+            if retry:
+                return self.retry_processing(symbol, retry - 1)
+
+
     def process(self):
         for symbol in self.tickers:
-            self.process_symbol(symbol)
+            self.retry_processing(symbol)
 
     def report_file_full_path(self, raports_dir: str = "reports") -> str:
         file_path = Path(raports_dir, self.report_date)

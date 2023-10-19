@@ -17,8 +17,9 @@ logging.basicConfig(
 @click.command()
 @click.option("--send", default=False, help="Send in to the bucket and send email")
 def process(send):
+    tickers=["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
     report = OptionReport(
-        author="Dawid S.", report_title="Options Report", tickers=["SPY"]
+        author="Dawid S.", report_title="Options Report", tickers=tickers
     )
 
     report.process()
