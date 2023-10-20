@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
+import uuid
 import talib
 import yfinance as yf
 from dateutil.relativedelta import relativedelta
@@ -20,8 +21,8 @@ def temporary_image_path(file_name: str):
     return "/tmp/images/" + file_name + ".png"
 
 
-def plot_to_html_image(plot: OpenBBFigure, file_name: str) -> str:
-    full_path = temporary_image_path(file_name)
+def plot_to_html_image(plot: OpenBBFigure) -> str:
+    full_path = temporary_image_path(str(uuid.uuid4()))
     plot.write_image(
         full_path, format=None, scale=None, width=1600, height=1024, validate=True
     )
@@ -64,7 +65,7 @@ def expiration_concentration_plot(chain: pd.DataFrame, concentration: str = "vol
     )
 
     htmlcode = widgets.h(5, f"expiration concentration for {concentration}")
-    htmlcode += plot_to_html_image(option_absolute_plot, 'expiration_concentration')
+    htmlcode += plot_to_html_image(option_absolute_plot)
     return htmlcode
 
 
@@ -184,7 +185,7 @@ def absolute_options_concentration_plot(
         only_next_friday_expiration={only_next_friday_expiration}",
     )
 
-    htmlcode += plot_to_html_image(option_absolute_plot, 'absolute_volume')
+    htmlcode += plot_to_html_image(option_absolute_plot)
     return htmlcode
 
 
@@ -213,7 +214,7 @@ def stock_plot_with_extra_data(stock: pd.DataFrame, levels: List[str]) -> str:
             line=dict(dash="dash", width=0.5, color=color_per_level(level)),
         )
     stock_plot.update_layout(showlegend=True, xaxis=dict(type="category"))
-    htmlcode = plot_to_html_image(stock_plot, 'stock_plot_with_extra_data')
+    htmlcode = plot_to_html_image(stock_plot)
     return htmlcode
 
 
@@ -326,7 +327,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
         )
         options_type = "PUT:" if show_put else "CALL:"
         htmlcode += widgets.h(5, f"{options_type}: STRIKE: {int(option_strike)}")
-        htmlcode += plot_to_html_image(option_plot, 'rsi_options_plot')
+        htmlcode += plot_to_html_image(option_plot)
     else:
         htmlcode = widgets.h(
             5,

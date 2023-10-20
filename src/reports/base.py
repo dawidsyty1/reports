@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 from typing import List
-
 import pandas as pd
 import pytz
 from openbb_terminal.helper_funcs import get_user_timezone
