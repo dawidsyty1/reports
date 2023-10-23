@@ -250,7 +250,7 @@ def one_day_plot_with_extra_data(symbol: str, levels: List[str]) -> str:
     return htmlcode
 
 
-def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: int=28) -> str:
+def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: int = 28) -> str:
     """Following plot shows RSI momentum for options with different expirations days."""
 
     tk = yf.Ticker(symbol)
@@ -273,17 +273,14 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: 
             close_to = opt.puts.iloc[
                 (opt.puts["strike"] - option_strike).abs().argsort()[:10]
             ]
-            close_to = close_to.sort_values(by=["volume"], ascending=False)
-            option_symbol = close_to["contractSymbol"].iloc[0]
-            option_strike = close_to["strike"].iloc[0]
         else:
             option_strike = 1.10 * current_price
             close_to = opt.calls.iloc[
                 (opt.calls["strike"] - option_strike).abs().argsort()[:10]
             ]
-            close_to = close_to.sort_values(by=["volume"], ascending=False)
-            option_symbol = close_to["contractSymbol"].iloc[0]
-            option_strike = close_to["strike"].iloc[0]
+        close_to = close_to.sort_values(by=["volume"], ascending=False)
+        option_symbol = close_to["contractSymbol"].iloc[0]
+        option_strike = close_to["strike"].iloc[0]
 
         logging.info(option_symbol)
         option_data = yf.download(option_symbol)
@@ -303,7 +300,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: 
                 name="RSI Trend",
                 x0=option_data.index[0],
                 y0=50,
-                x1=option_data.index[-1],
+                x1=option_data.index[-1] + timedelta(days=10),
                 y1=50,
                 line=dict(color="white", width=LINE_WIDTH),
                 row=1,
