@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import pandas as pd
 import pytz
 from openbb_terminal.helper_funcs import get_user_timezone
@@ -25,21 +25,21 @@ class Report:
         self.body += widgets.tablinks(tickers)
         self.tickers = tickers
 
-    def process_symbol(self, symbol: str):
+    def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
-        self.body += widgets.add_tab(symbol, htmlcode)
+        return htmlcode, symbol
 
-    def retry_processing(self, symbol: str, retry: int=3):
+    def retry_processing(self, symbol: str, retry: int=3) -> Tuple[str, str]:
         try:
-            self.process_symbol(symbol)
+            return self.process_symbol(symbol)
         except Exception:
             if retry:
                 return self.retry_processing(symbol, retry - 1)
 
-
     def process(self):
         for symbol in self.tickers:
-            self.retry_processing(symbol)
+            htmlcode, symbol = self.retry_processing(symbol)
+            self.body += widgets.add_tab(symbol, htmlcode)
 
     def report_file_full_path(self, raports_dir: str = "reports") -> str:
         file_path = Path(raports_dir, self.report_date)

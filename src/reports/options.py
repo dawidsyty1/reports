@@ -2,11 +2,11 @@ from datetime import datetime
 
 from openbb_terminal.reports import widget_helpers as widgets
 from openbb_terminal.stocks.options import yfinance_model
-
+from typing import Tuple
 import options
 import plots
 from reports.base import Report
-
+from reports.async_base import AsyncReport
 
 def should_include_friday(symbol: str):
     symbols_list = ["SPY"]
@@ -15,9 +15,8 @@ def should_include_friday(symbol: str):
         return True
     return False
 
-
 class OptionReport(Report):
-    def process_symbol(self, symbol: str):
+    def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
         full_chain = yfinance_model.get_full_option_chain(symbol)
         full_chain["strike"] = full_chain["strike"].astype(float)
@@ -61,4 +60,4 @@ class OptionReport(Report):
             full_chain, concentration="openInterest"
         )
 
-        self.body += widgets.add_tab(symbol, htmlcode)
+        return htmlcode, symbol

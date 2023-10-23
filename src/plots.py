@@ -15,6 +15,9 @@ from openbb_terminal.reports import widget_helpers as widgets
 from openbb_terminal.stocks import stocks_helper
 from openbb_terminal.stocks.options import yfinance_model
 
+LINE_WIDTH = 0.8
+CHART_WIDTH = 1600
+CHART_HEIGHT = 1024
 
 def temporary_image_path(file_name: str):
     Path("/tmp/images/").mkdir(parents=True, exist_ok=True)
@@ -24,7 +27,7 @@ def temporary_image_path(file_name: str):
 def plot_to_html_image(plot: OpenBBFigure) -> str:
     full_path = temporary_image_path(str(uuid.uuid4()))
     plot.write_image(
-        full_path, format=None, scale=None, width=1600, height=1024, validate=True
+        full_path, format=None, scale=None, width=CHART_WIDTH, height=CHART_HEIGHT, validate=True
     )
     bytes = base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
     htmlcode = f'<img src="data:image/png;base64,{bytes}">'
@@ -54,14 +57,14 @@ def expiration_concentration_plot(chain: pd.DataFrame, concentration: str = "vol
         y=expiration_concentraion["call"],
         name=f"Calls: {concentration}",
         marker_color="green",
-        width=0.8,
+        width=LINE_WIDTH,
     )
     option_absolute_plot.add_bar(
         x=expiration_concentraion["expiry"],
         y=expiration_concentraion["put"],
         name=f"Puts: {concentration}",
         marker_color="red",
-        width=0.8,
+        width=LINE_WIDTH,
     )
 
     htmlcode = widgets.h(5, f"expiration concentration for {concentration}")
@@ -150,7 +153,7 @@ def absolute_options_concentration_plot(
         y=option_chain[call_field_name],
         name=call_field_name,
         marker_color="green",
-        width=0.8,
+        width=LINE_WIDTH,
     )
 
     option_absolute_plot.add_bar(
@@ -158,24 +161,24 @@ def absolute_options_concentration_plot(
         y=option_chain[put_field_name],
         name=put_field_name,
         marker_color="red",
-        width=0.8,
+        width=LINE_WIDTH,
     )
     option_absolute_plot.add_vline_legend(
         x=current_price,
         name=f"Current stock price: {current_price}",
-        line=dict(width=0.8, color="white"),
+        line=dict(width=LINE_WIDTH, color="white"),
     )
     if put_wall:
         option_absolute_plot.add_vline_legend(
             x=put_wall,
             name=f"Put wall = {put_wall}",
-            line=dict(width=0.8, color="red"),
+            line=dict(width=LINE_WIDTH, color="red"),
         )
     if call_wall:
         option_absolute_plot.add_vline_legend(
             x=call_wall,
             name=f"Call wall = {call_wall}",
-            line=dict(width=0.8, color="blue"),
+            line=dict(width=LINE_WIDTH, color="blue"),
         )
 
     option_absolute_plot.update_layout()
@@ -211,7 +214,7 @@ def stock_plot_with_extra_data(stock: pd.DataFrame, levels: List[str]) -> str:
         stock_plot.add_hline_legend(
             y=strike,
             name=f"{level} : {strike}",
-            line=dict(dash="dash", width=0.5, color=color_per_level(level)),
+            line=dict(dash="dash", width=LINE_WIDTH, color=color_per_level(level)),
         )
     stock_plot.update_layout(showlegend=True, xaxis=dict(type="category"))
     htmlcode = plot_to_html_image(stock_plot)
@@ -247,7 +250,7 @@ def one_day_plot_with_extra_data(symbol: str, levels: List[str]) -> str:
     return htmlcode
 
 
-def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
+def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: int=28) -> str:
     """Following plot shows RSI momentum for options with different expirations days."""
 
     tk = yf.Ticker(symbol)
@@ -286,9 +289,9 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
         option_data = yf.download(option_symbol)
 
         option_data["rsi"] = (
-            talib.RSI(option_data["Close"]) if len(option_data["Close"]) else 0
+            talib.RSI(option_data["Close"], timeperiod=timeperiod) if len(option_data["Close"]) else 0
         )
-        option_data = option_data[14:]
+        option_data = option_data[timeperiod:]
 
         if not option_plot:
             if not len(option_data["Close"]):
@@ -302,7 +305,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
                 y0=50,
                 x1=option_data.index[-1],
                 y1=50,
-                line=dict(color="white", width=0.8),
+                line=dict(color="white", width=LINE_WIDTH),
                 row=1,
                 col=1,
                 secondary_y=False,
@@ -315,7 +318,7 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True) -> str:
             orientation="h",
             showlegend=True,
             secondary_y=False,
-            line=dict(color=color, width=0.8),
+            line=dict(color=color, width=LINE_WIDTH),
         )
     options_type = "PUT:" if show_put else "CALL:"
 
