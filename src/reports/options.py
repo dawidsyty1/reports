@@ -15,7 +15,7 @@ def should_include_friday(symbol: str):
         return True
     return False
 
-class OptionReport(Report):
+class OptionReport(AsyncReport):
     def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
         full_chain = yfinance_model.get_full_option_chain(symbol)

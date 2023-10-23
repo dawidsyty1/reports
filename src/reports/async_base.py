@@ -19,6 +19,5 @@ class AsyncReport(Report):
                 htmlcode, symbol = future.result()
                 self.body += widgets.add_tab(symbol, htmlcode)
 
-
     def process(self):
         self.process_async()
