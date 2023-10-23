@@ -147,7 +147,7 @@ def options_levels(full_chain: pd.DataFrame, current_price: float) -> dict:
                 }
             )
 
-    largest_values = sorted(largest_values, key=lambda d: d["Gamma"], reverse=True)[:5]
+    largest_values = sorted(largest_values, key=lambda d: d["Gamma"], reverse=True)[:2]
     for index, value in enumerate(largest_values):
         levels[f"Large Gamma {index}"] = value["Strike"]
 
