@@ -132,8 +132,8 @@ def absolute_options_concentration_plot(
     option_chain[["openInterest_call", "volume_call"]] = option_chain[
         ["openInterest_call", "volume_call"]
     ]
-    # calculate put/call wall above/bellow price
 
+    # calculate put/call wall above/bellow price
     try:
         put_wall_id = option_chain[option_chain["strike"] <= current_price][
             put_field_name

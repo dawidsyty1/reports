@@ -1,14 +1,21 @@
 import logging
-from pathlib import Path
 from typing import List
 from concurrent.futures import ProcessPoolExecutor, as_completed
-import pandas as pd
-import pytz
-from openbb_terminal.helper_funcs import get_user_timezone
 from openbb_terminal.reports import widget_helpers as widgets
 from reports.base import Report
 
+
 class AsyncReport(Report):
+    def __init__(
+        self,
+        author: str,
+        report_title: str,
+        tickers: List[str],
+        multiprocessing: bool = False,
+    ) -> None:
+        super().__init__(author, report_title, tickers)
+        self.multiprocessing = multiprocessing
+
     def process_async(self):
         with ProcessPoolExecutor(max_workers=len(self.tickers)) as executor:
             futures = []
@@ -20,4 +27,9 @@ class AsyncReport(Report):
                 self.body += widgets.add_tab(symbol, htmlcode)
 
     def process(self):
-        self.process_async()
+        if self.multiprocessing:
+            logging.info(f"Processing report in multiprocessing mode...")
+            self.process_async()
+        else:
+            logging.info(f"Processing report in normal mode...")
+            super().process()

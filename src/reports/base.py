@@ -48,7 +48,7 @@ class Report:
         file_path = str(file_path) + ".html"
         return file_path
 
-    def save_to_html(self, raports_dir: str = "reports"):
+    def save_to_html(self, raports_dir: str = "reports") -> str:
         self.body += '<a class="button" href="#top">Back to top</a>'
         self.body += widgets.tab_clickable_and_save_evt()
         stylesheet = widgets.html_report_stylesheet()

@@ -19,7 +19,7 @@ logging.basicConfig(
 def process(send):
     tickers=["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
     report = OptionReport(
-        author="Dawid S.", report_title="Options Report", tickers=tickers
+        author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
     )
 
     report.process()
