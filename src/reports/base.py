@@ -6,24 +6,29 @@ import pytz
 from openbb_terminal.helper_funcs import get_user_timezone
 from openbb_terminal.reports import widget_helpers as widgets
 
+from dataclasses import dataclass
 
+@dataclass
 class Report:
-    def __init__(self, author: str, report_title: str, tickers: List[str]) -> None:
-        user_time_zone = pytz.timezone(get_user_timezone())
-        self.report_date = pd.Timestamp.now(tz=user_time_zone).strftime("%Y-%m-%d")
-        self.report_time = pd.Timestamp.now(tz=user_time_zone).strftime("%H:%M")
+    tickers : List[str]
+    author: str
+    report_title: str
+    report_date : str = pd.Timestamp.now(tz=pytz.timezone(get_user_timezone())).strftime("%Y-%m-%d")
+    report_time : str = pd.Timestamp.now(tz=pytz.timezone(get_user_timezone())).strftime("%H:%M")
+    body : str = None
 
+    def __post_init__(self) -> None:
         self.body = widgets.header(
-            author,
+            self.author,
             self.report_date,
             self.report_time,
             "",
-            report_title,
+            self.report_title,
             plotly_js=False,
         )
         self.body += '<a id="top"></a>'
-        self.body += widgets.tablinks(tickers)
-        self.tickers = tickers
+        self.body += widgets.tablinks(self.tickers)
+
 
     def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")

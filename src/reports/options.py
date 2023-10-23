@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 from openbb_terminal.reports import widget_helpers as widgets
@@ -15,6 +16,7 @@ def should_include_friday(symbol: str):
         return True
     return False
 
+@dataclass
 class OptionReport(AsyncReport):
     def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")

@@ -1,20 +1,13 @@
+from dataclasses import dataclass
 import logging
 from typing import List
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from openbb_terminal.reports import widget_helpers as widgets
 from reports.base import Report
 
-
+@dataclass
 class AsyncReport(Report):
-    def __init__(
-        self,
-        author: str,
-        report_title: str,
-        tickers: List[str],
-        multiprocessing: bool = False,
-    ) -> None:
-        super().__init__(author, report_title, tickers)
-        self.multiprocessing = multiprocessing
+    multiprocessing: bool = False
 
     def process_async(self):
         with ProcessPoolExecutor(max_workers=len(self.tickers)) as executor:
