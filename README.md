@@ -11,6 +11,9 @@ Create .env file with:
     SMTP_API_KEY=""
     BUCKET_NAME=""
     LOGLEVEL=""
+    SENDER_NAME=""
+    SENDER_EMAIL=""
+    RECEIVER_NAME=""
 
 Build docker
 

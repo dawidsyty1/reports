@@ -1,6 +1,6 @@
 import logging
 import os
-
+import uuid
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
@@ -8,19 +8,16 @@ from sib_api_v3_sdk.rest import ApiException
 def prepare_params(source_file_path: str, signed_url: str) -> dict:
     click_able_a = f'<a href="{signed_url}" target="_blank"> link </a>'
     html_content = f"<html> Here is your daily report: {click_able_a} </html>"
-
-    sender = {"name": "Dawid Syty", "email": "dawid.syty1@gmail.com"}
-    to = [{"email": "dawid.syty1@gmail.com", "name": "Dawid Syty"}]
-    cc = [{"email": "dawid.syty1@gmail.com", "name": "Dawid Syty"}]
-    bcc = [{"name": "Dawid Syty", "email": "dawid.syty1@gmail.com"}]
-    reply_to = {"email": "dawid.syty1@gmail.com", "name": "Dawid Syty"}
-    headers = {"Some-Custom-Name": "unique-id-1234"}
+    sender_name = os.environ["SENDER_NAME"]
+    receiver_name = os.environ["RECEIVER_NAME"]
+    sender = {"name": sender_name, "email": receiver_name}
+    headers = {"Option Report": str(uuid.uuid4())}
 
     params = {
-        "to": to,
-        "bcc": bcc,
-        "cc": cc,
-        "reply_to": reply_to,
+        "to": [sender],
+        "bcc": [sender],
+        "cc": [sender],
+        "reply_to": sender,
         "headers": headers,
         "html_content": html_content,
         "sender": sender,
