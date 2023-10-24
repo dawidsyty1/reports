@@ -14,10 +14,12 @@ from openbb_terminal.core.plots.plotly_ta.ta_class import PlotlyTA
 from openbb_terminal.reports import widget_helpers as widgets
 from openbb_terminal.stocks import stocks_helper
 from openbb_terminal.stocks.options import yfinance_model
+from openbb_terminal.stocks.options import op_helpers, yfinance_model
 
 LINE_WIDTH = 0.8
 CHART_WIDTH = 1600
 CHART_HEIGHT = 1024
+
 
 def temporary_image_path(file_name: str):
     Path("/tmp/images/").mkdir(parents=True, exist_ok=True)
@@ -27,7 +29,12 @@ def temporary_image_path(file_name: str):
 def plot_to_html_image(plot: OpenBBFigure) -> str:
     full_path = temporary_image_path(str(uuid.uuid4()))
     plot.write_image(
-        full_path, format=None, scale=None, width=CHART_WIDTH, height=CHART_HEIGHT, validate=True
+        full_path,
+        format=None,
+        scale=None,
+        width=CHART_WIDTH,
+        height=CHART_HEIGHT,
+        validate=True,
     )
     bytes = base64.b64encode(open(full_path, "rb").read()).decode("utf-8")
     htmlcode = f'<img src="data:image/png;base64,{bytes}">'
@@ -35,7 +42,9 @@ def plot_to_html_image(plot: OpenBBFigure) -> str:
 
 
 # Expiration Concentration
-def expiration_concentration_plot(chain: pd.DataFrame, concentration: str = "volume") -> str:
+def expiration_concentration_plot(
+    chain: pd.DataFrame, concentration: str = "volume"
+) -> str:
     logging.info(f"Expiration concentration for {concentration}...")
     expiration_concentraion = {"expiry": [], "call": [], "put": []}
     # openInterest
@@ -250,7 +259,9 @@ def one_day_plot_with_extra_data(symbol: str, levels: List[str]) -> str:
     return htmlcode
 
 
-def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: int = 28) -> str:
+def rsi_options_plot(
+    symbol, expirations: List[str], show_put=True, timeperiod: int = 28
+) -> str:
     """Following plot shows RSI momentum for options with different expirations days."""
 
     tk = yf.Ticker(symbol)
@@ -286,7 +297,9 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: 
         option_data = yf.download(option_symbol)
 
         option_data["rsi"] = (
-            talib.RSI(option_data["Close"], timeperiod=timeperiod) if len(option_data["Close"]) else 0
+            talib.RSI(option_data["Close"], timeperiod=timeperiod)
+            if len(option_data["Close"])
+            else 0
         )
         option_data = option_data[timeperiod:]
 
@@ -333,4 +346,100 @@ def rsi_options_plot(symbol, expirations: List[str], show_put=True, timeperiod: 
             5,
             f"No data for {symbol} type {options_type} with {expirations} expiration.",
         )
+    return htmlcode
+
+
+from collections import defaultdict
+
+
+def options_gex_plot(
+    full_chain: pd.DataFrame,
+    current_price: float,
+    only_current_expiration: bool = False,
+    only_next_friday_expiration: bool = False,
+) -> str:
+    current_expiration = full_chain.expiration.iloc[0]
+    if only_current_expiration:
+        full_chain = full_chain[full_chain["expiration"] == current_expiration]
+
+    elif only_next_friday_expiration:
+        today = datetime.today()
+        friday_expiration = today + timedelta((4 - today.weekday()) % 7)
+        current_expiration = friday_expiration.strftime("%Y-%m-%d")
+        full_chain = full_chain[full_chain["expiration"] == current_expiration]
+
+    min_strike = 0.90 * current_price
+    max_strike = 1.10 * current_price
+    div_cont: float = 0
+    rf = None
+    total_gex = defaultdict(list)
+
+    for expiry, chain in full_chain.groupby(["expiration"]):
+        chain = chain[chain["strike"] >= min_strike]
+        chain = chain[chain["strike"] <= max_strike]
+        calls = op_helpers.get_greeks(
+            current_price=current_price,
+            expire=expiry,
+            calls=chain[chain["optionType"] == "call"],
+            puts=chain[chain["optionType"] == "put"],
+            div_cont=div_cont,
+            rf=rf,
+            opt_type=1,
+            show_extra_greeks=False,
+        )
+
+        chain = chain[chain["optionType"] == "call"]
+        for _, row in calls.iterrows():
+            oi = chain[chain["strike"] == row.Strike]
+            total_gex["Strike"].append(row.Strike)
+            total_gex["CALL"].append(oi["openInterest"].iloc[0] * row.Gamma)
+
+    for expiry, chain in full_chain.groupby(["expiration"]):
+        chain = chain[chain["strike"] >= min_strike]
+        chain = chain[chain["strike"] <= max_strike]
+        calls = op_helpers.get_greeks(
+            current_price=current_price,
+            expire=expiry,
+            calls=chain[chain["optionType"] == "call"],
+            puts=chain[chain["optionType"] == "put"],
+            div_cont=div_cont,
+            rf=rf,
+            opt_type=-1,
+            show_extra_greeks=False,
+        )
+
+        chain = chain[chain["optionType"] == "put"]
+        for _, row in calls.iterrows():
+            oi = chain[chain["strike"] == row.Strike]
+            total_gex["PUT"].append(-(oi["openInterest"].iloc[0] * row.Gamma))
+
+    option_absolute_plot = OpenBBFigure()
+    option_absolute_plot.add_bar(
+        x=total_gex["Strike"],
+        y=total_gex["CALL"],
+        name="CALL",
+        marker_color="green",
+        width=0.8,
+    )
+
+    option_absolute_plot.add_bar(
+        x=total_gex["Strike"],
+        y=total_gex["PUT"],
+        name="PUT",
+        marker_color="red",
+        width=0.8,
+    )
+
+    option_absolute_plot.add_vline_legend(
+        x=current_price,
+        name=f"Price: {current_price}",
+        line=dict(width=LINE_WIDTH, color="white"),
+    )
+
+    htmlcode = widgets.h(
+        5,
+        f"GEX only_current_expiration={only_current_expiration}: {current_expiration}, only_next_friday_expiration={only_next_friday_expiration}",
+    )
+
+    htmlcode += plot_to_html_image(option_absolute_plot)
     return htmlcode
