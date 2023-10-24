@@ -54,9 +54,10 @@ class OptionReport(AsyncReport):
         )
 
         htmlcode += plots.options_gex_plot(full_chain, current_price, only_current_expiration=True)
-        htmlcode += plots.options_gex_plot(
-            full_chain, current_price, only_next_friday_expiration=True
-        )
+        if should_include_friday(symbol):
+            htmlcode += plots.options_gex_plot(
+                full_chain, current_price, only_next_friday_expiration=True
+            )
         htmlcode += plots.expiration_concentration_plot(
             full_chain, concentration="openInterest"
         )
