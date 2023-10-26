@@ -16,8 +16,11 @@ class AsyncReport(Report):
                 futures.append(executor.submit(self.retry_processing, symbol))
 
             for future in as_completed(futures):
-                htmlcode, symbol = future.result()
-                self.body += widgets.add_tab(symbol, htmlcode)
+                if future:
+                    htmlcode, symbol = future.result()
+                    self.body += widgets.add_tab(symbol, htmlcode)
+                else:
+                    logging.warning(f"Failed to process {symbol}")
 
     def process(self):
         if self.multiprocessing:
