@@ -11,7 +11,7 @@ class AsyncReport(Report):
 
     def process_futures(self, futures):
         for future in as_completed(futures):
-            try
+            try:
                 htmlcode, symbol = future.result()
                 self.body += widgets.add_tab(symbol, htmlcode)
             except TypeError as errors:
