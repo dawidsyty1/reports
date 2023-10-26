@@ -11,11 +11,11 @@ class AsyncReport(Report):
 
     def process_futures(self, futures):
         for future in as_completed(futures):
-            if future:
+            try
                 htmlcode, symbol = future.result()
                 self.body += widgets.add_tab(symbol, htmlcode)
-            else:
-                logging.warning(f"Failed to process {symbol}")
+            except TypeError as errors:
+                logging.warning(f"Failed to process {symbol}: {errors}")
 
     def process_async(self):
         with ProcessPoolExecutor(max_workers=len(self.tickers)) as executor:
