@@ -9,18 +9,22 @@ from reports.base import Report
 class AsyncReport(Report):
     multiprocessing: bool = False
 
+    def process_futures(self, futures):
+        for future in as_completed(futures):
+            if future:
+                htmlcode, symbol = future.result()
+                self.body += widgets.add_tab(symbol, htmlcode)
+            else:
+                logging.warning(f"Failed to process {symbol}")
+
     def process_async(self):
         with ProcessPoolExecutor(max_workers=len(self.tickers)) as executor:
-            futures = []
-            for symbol in self.tickers:
-                futures.append(executor.submit(self.retry_processing, symbol))
+            futures = [
+                executor.submit(self.retry_processing, symbol)
+                for symbol in self.tickers
+            ]
+            self.process_futures(futures)
 
-            for future in as_completed(futures):
-                if future:
-                    htmlcode, symbol = future.result()
-                    self.body += widgets.add_tab(symbol, htmlcode)
-                else:
-                    logging.warning(f"Failed to process {symbol}")
 
     def process(self):
         if self.multiprocessing:
