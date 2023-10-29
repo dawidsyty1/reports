@@ -6,14 +6,14 @@ import pandas as pd
 from openbb_terminal.stocks.options import op_helpers
 
 
-def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0) -> List[str]:
+def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0, concentration_type: str = "volume") -> List[str]:
     """Filter expirations with less then."""
     logging.info("volatile concentration...")
     expiration_concentraion = {}
 
     for expiry, local_chain in chain.groupby(["expiration"]):
-        call = local_chain[local_chain["optionType"] == "call"]["volume"].sum()
-        puts = local_chain[local_chain["optionType"] == "put"]["volume"].sum()
+        call = local_chain[local_chain["optionType"] == "call"][concentration_type].sum()
+        puts = local_chain[local_chain["optionType"] == "put"][concentration_type].sum()
         expiration_concentraion[expiry] = call + puts
 
     return_expiration_concentraion = {}

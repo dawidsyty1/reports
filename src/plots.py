@@ -15,6 +15,8 @@ from openbb_terminal.reports import widget_helpers as widgets
 from openbb_terminal.stocks import stocks_helper
 from openbb_terminal.stocks.options import yfinance_model
 from openbb_terminal.stocks.options import op_helpers, yfinance_model
+from collections import defaultdict
+
 
 LINE_WIDTH = 0.8
 CHART_WIDTH = 1600
@@ -347,9 +349,6 @@ def rsi_options_plot(
             f"No data for {symbol} type {options_type} with {expirations} expiration.",
         )
     return htmlcode
-
-
-from collections import defaultdict
 
 
 def options_gex_plot(

@@ -37,10 +37,11 @@ class Report:
     def retry_processing(self, symbol: str, retry: int=3) -> Tuple[str, str]:
         try:
             return self.process_symbol(symbol)
-        except Exception:
+        except Exception as error:
             if retry:
                 return self.retry_processing(symbol, retry - 1)
-
+            raise error
+    
     def process(self):
         for symbol in self.tickers:
             htmlcode, symbol = self.retry_processing(symbol)

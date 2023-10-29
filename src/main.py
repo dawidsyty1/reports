@@ -5,6 +5,7 @@ import click
 
 from emails import send_email
 from reports.options import OptionReport
+from reports.gex import GEXFullReport
 from storage import upload_to_storage
 
 logging.basicConfig(
@@ -16,11 +17,17 @@ logging.basicConfig(
 
 @click.command()
 @click.option("--send", default=False, help="Send in to the bucket and send email")
-def process(send):
-    tickers=["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
-    report = OptionReport(
-        author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
-    )
+@click.option("--report_type", default="Normal", help="Type of the report")
+def process(send, report_type):
+    if report_type == "GEX":
+        report = GEXFullReport(
+            author="Dawid S.", report_title="Options Report", tickers=["SPY"], multiprocessing=False
+        )
+    else:
+        tickers=["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
+        report = OptionReport(
+            author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
+        )
 
     report.process()
     full_file_name = report.save_to_html()

@@ -14,6 +14,9 @@ run-lab:
 generate: ## generate reports
 	docker-compose run generator bash -c "python src/main.py"
 
+generate-gex: ## generate reports
+	docker-compose run generator bash -c "python src/main.py --report_type=GEX"
+
 generate-send: ## generate report and send it
 	docker-compose run generator bash -c "python src/main.py --send=True"
 
