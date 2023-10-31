@@ -40,7 +40,8 @@ class Report:
         except Exception as error:
             if retry:
                 return self.retry_processing(symbol, retry - 1)
-            raise error
+            htmlcode = widgets.h(1, f"Error for {symbol}: {error}")
+            return htmlcode, symbol
     
     def process(self):
         for symbol in self.tickers:
