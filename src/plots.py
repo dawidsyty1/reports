@@ -89,6 +89,7 @@ def absolute_options_concentration_plot(
     only_current_expiration: bool = False,
     only_next_friday_expiration: bool = False,
     concentration: str = "volume",
+    price_range: float = 0.05,
 ) -> str:
     current_expiration = chain.expiration.iloc[0]
     if only_current_expiration:
@@ -113,8 +114,8 @@ def absolute_options_concentration_plot(
         only_current_expiration={only_current_expiration}: {current_expiration},\
         only_next_friday_expiration={only_next_friday_expiration}"
     )
-    min_strike = 0.95 * current_price
-    max_strike = 1.05 * current_price
+    min_strike = (1 - price_range) * current_price
+    max_strike = (1 + price_range) * current_price
 
     chain = chain[chain["strike"] >= min_strike]
     chain = chain[chain["strike"] <= max_strike]
@@ -356,6 +357,7 @@ def options_gex_plot(
     current_price: float,
     only_current_expiration: bool = False,
     only_next_friday_expiration: bool = False,
+    price_range: float = 0.1,
 ) -> str:
     current_expiration = full_chain.expiration.iloc[0]
     if only_current_expiration:
@@ -367,8 +369,8 @@ def options_gex_plot(
         current_expiration = friday_expiration.strftime("%Y-%m-%d")
         full_chain = full_chain[full_chain["expiration"] == current_expiration]
 
-    min_strike = 0.90 * current_price
-    max_strike = 1.10 * current_price
+    min_strike = (1 - price_range) * current_price
+    max_strike = (1 + price_range) * current_price
     div_cont: float = 0
     rf = None
     total_gex = defaultdict(list)
