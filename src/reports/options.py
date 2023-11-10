@@ -18,8 +18,8 @@ def should_include_friday(symbol: str):
 
 @dataclass
 class OptionReport(AsyncReport):
-    narrow_price_range: float = 0.05
-    wide_price_range: float = 0.2
+    narrow_price_range: float = 0.1
+    wide_price_range: float = 0.3
 
     def process_symbol(self, symbol: str) -> Tuple[str, str]:
         htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
