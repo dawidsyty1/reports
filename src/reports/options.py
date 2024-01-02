@@ -75,8 +75,10 @@ class OptionReport(AsyncReport):
 
 @dataclass
 class OptionReportV2(AsyncReport):
+    narrow_price_range: float = 0.1
+    wide_price_range: float = 0.3
     def process_symbol(self, symbol: str) -> Tuple[str, str]:
-        htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
+        htmlcode = widgets.h(1, f"Analysis for {symbol}:")
         full_chain = yfinance_model.get_full_option_chain(symbol)
         full_chain["strike"] = full_chain["strike"].astype(float)
         current_price = yfinance_model.get_price(symbol)
@@ -87,16 +89,18 @@ class OptionReportV2(AsyncReport):
         expirations_put = options.filter_active_open_interest_expirations_in_chain(full_chain, "put")
         htmlcode += plots.rsi_options_plot(symbol, expirations_put)
 
-
+        price_range = self.narrow_price_range if symbol in ["SPY", "QQQ"] else self.wide_price_range
         htmlcode += plots.absolute_options_concentration_plot_v2(
             full_chain[full_chain["expiration"] == expirations_call[0]],
             current_price,
+            price_range=price_range,
             description=f"Call: {expirations_call[0]}",
         )
 
         htmlcode += plots.absolute_options_concentration_plot_v2(
             full_chain[full_chain["expiration"] == expirations_put[0]],
             current_price,
+            price_range=price_range,
             description=f"Put: {expirations_put[0]}",
         )
 

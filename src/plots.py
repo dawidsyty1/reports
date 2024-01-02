@@ -354,95 +354,6 @@ def one_day_plot_with_extra_data(symbol: str, levels: List[str] = []) -> str:
     htmlcode += stock_plot_with_extra_data(stock, levels)
     return htmlcode
 
-def rsi_options_plot_v2(
-    symbol, expirations: List[str], show_put=True, timeperiod: int = 28
-) -> str:
-    """Following plot shows RSI momentum for options with different expirations days."""
-
-    tk = yf.Ticker(symbol)
-    current_price = yfinance_model.get_price(symbol)
-
-    option_plot = None
-    color_per_expiration = {
-        0: "white",
-        1: "red",
-        2: "blue",
-    }
-
-    for index, exp in enumerate(expirations):
-        opt = tk.option_chain(exp)
-        opt.calls["optionType"] = "call"
-        opt.puts["optionType"] = "put"
-
-        if show_put:
-            option_strike = current_price
-            close_to = opt.puts.iloc[
-                (opt.puts["strike"] - option_strike).abs().argsort()[:10]
-            ]
-        else:
-            option_strike = current_price
-            close_to = opt.calls.iloc[
-                (opt.calls["strike"] - option_strike).abs().argsort()[:10]
-            ]
-
-        close_to = close_to.sort_values(by=["volume"], ascending=False)
-        option_symbol = close_to["contractSymbol"].iloc[0]
-        option_strike = close_to["strike"].iloc[0]
-
-        logging.info(option_symbol)
-        option_data = yf.download(option_symbol)
-
-        option_data["rsi"] = (
-            talib.RSI(option_data["Close"], timeperiod=timeperiod)
-            if len(option_data["Close"])
-            else 0
-        )
-        option_data = option_data[timeperiod:]
-
-        if not option_plot:
-            if not len(option_data["Close"]):
-                continue
-
-            option_plot = OpenBBFigure.create_subplots()
-            option_plot.add_shape(
-                type="line",
-                name="RSI Trend",
-                x0=option_data.index[0],
-                y0=50,
-                x1=option_data.index[-1] + timedelta(days=10),
-                y1=50,
-                line=dict(color="white", width=LINE_WIDTH),
-                row=1,
-                col=1,
-                secondary_y=False,
-            )
-        color = color_per_expiration[index]
-        option_plot.add_scatter(
-            x=option_data.index,
-            y=option_data["rsi"],
-            name=f"{exp}: {option_strike}",
-            orientation="h",
-            showlegend=True,
-            secondary_y=False,
-            line=dict(color=color, width=LINE_WIDTH),
-        )
-    options_type = "PUT:" if show_put else "CALL:"
-
-    logging.info(f"{symbol} {options_type}, {option_strike}")
-
-    if option_plot:
-        htmlcode = widgets.h(
-            5, f"The RSI momentum plot for following options expirations {expirations}."
-        )
-        options_type = "PUT:" if show_put else "CALL:"
-        htmlcode += widgets.h(5, f"{options_type}: STRIKE: {int(option_strike)}")
-        htmlcode += plot_to_html_image(option_plot)
-    else:
-        htmlcode = widgets.h(
-            5,
-            f"No data for {symbol} type {options_type} with {expirations} expiration.",
-        )
-    return htmlcode
     
 def rsi_options_plot(
     symbol, expirations: List[str], show_put=True, timeperiod: int = 28
@@ -465,12 +376,12 @@ def rsi_options_plot(
         opt.puts["optionType"] = "put"
 
         if show_put:
-            option_strike = current_price
+            option_strike = 0.90 * current_price
             close_to = opt.puts.iloc[
                 (opt.puts["strike"] - option_strike).abs().argsort()[:10]
             ]
         else:
-            option_strike = current_price
+            option_strike = 1.10 * current_price
             close_to = opt.calls.iloc[
                 (opt.calls["strike"] - option_strike).abs().argsort()[:10]
             ]

@@ -13,9 +13,9 @@ def filter_active_open_interest_expirations_in_chain(chain: pd.DataFrame, option
         expiration_concentraion["expiry"].append(expiry)
         total = local_chain[local_chain["optionType"] == option_type]["openInterest"].sum()
         expiration_concentraion["total"].append(total)
-    expiration_concentraion = pd.DataFrame.from_dict(expiration_concentraion)    
-    return list(expiration_concentraion.sort_values(by=["total"], ascending=False)['expiry'][:3])
-
+    expiration_concentraion = pd.DataFrame.from_dict(expiration_concentraion)
+    expirations = list(expiration_concentraion.sort_values(by=["total"], ascending=False)['expiry'][:3])
+    return sorted(expirations, key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
 
 def filter_active_volume_expirations(chain: pd.DataFrame, filter_less_then: int = 0, concentration_type: str = "volume") -> List[str]:
     """Filter expirations with less then."""
