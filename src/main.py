@@ -4,7 +4,7 @@ import os
 import click
 
 from emails import send_email
-from reports.options import OptionReport
+from reports.options import OptionReport, OptionReportV2
 from reports.gex import GEXFullReport
 from storage import upload_to_storage
 
@@ -24,8 +24,9 @@ def process(send, report_type):
             author="Dawid S.", report_title="Options Report", tickers=["SPY"], multiprocessing=False
         )
     else:
-        tickers=["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
-        report = OptionReport(
+        tickers = ["SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
+
+        report = OptionReportV2(
             author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
         )
 

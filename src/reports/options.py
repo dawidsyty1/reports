@@ -71,3 +71,39 @@ class OptionReport(AsyncReport):
         )
 
         return htmlcode, symbol
+
+
+@dataclass
+class OptionReportV2(AsyncReport):
+    def process_symbol(self, symbol: str) -> Tuple[str, str]:
+        htmlcode = widgets.h(1, f"Simple analysis for {symbol}:")
+        full_chain = yfinance_model.get_full_option_chain(symbol)
+        full_chain["strike"] = full_chain["strike"].astype(float)
+        current_price = yfinance_model.get_price(symbol)
+
+        expirations_call = options.filter_active_open_interest_expirations_in_chain(full_chain, "call")
+        htmlcode += plots.rsi_options_plot(symbol, expirations_call, False)
+        
+        expirations_put = options.filter_active_open_interest_expirations_in_chain(full_chain, "put")
+        htmlcode += plots.rsi_options_plot(symbol, expirations_put)
+
+
+        htmlcode += plots.absolute_options_concentration_plot_v2(
+            full_chain[full_chain["expiration"] == expirations_call[0]],
+            current_price,
+            description=f"Call: {expirations_call[0]}",
+        )
+
+        htmlcode += plots.absolute_options_concentration_plot_v2(
+            full_chain[full_chain["expiration"] == expirations_put[0]],
+            current_price,
+            description=f"Put: {expirations_put[0]}",
+        )
+
+        htmlcode += plots.long_period_plot_with_extra_data(symbol)
+
+        htmlcode += plots.expiration_concentration_plot(
+            full_chain, concentration="openInterest"
+        )
+
+        return htmlcode, symbol
