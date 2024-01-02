@@ -90,7 +90,6 @@ class OptionReportV2(AsyncReport):
         htmlcode += plots.rsi_options_plot(symbol, expirations)
 
         price_range = self.narrow_price_range if symbol in ["SPY", "QQQ"] else self.wide_price_range
-        # Absolute plots
         htmlcode += plots.detailed_option_plot(
             full_chain[full_chain["expiration"] == expirations[0]],
             current_price,
@@ -109,5 +108,8 @@ class OptionReportV2(AsyncReport):
         htmlcode += plots.expiration_concentration_plot(
             full_chain, concentration="openInterest"
         )
+
+        if symbol == "SPY":
+            htmlcode += plots.stock_bond_correlation_plot()
 
         return htmlcode, symbol

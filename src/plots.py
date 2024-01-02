@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
-
+import numpy as np
 import pandas as pd
 import uuid
 import talib
@@ -613,4 +613,70 @@ def options_gex_plot_v2(
     htmlcode = widgets.h(5, description)
 
     htmlcode += plot_to_html_image(option_absolute_plot)
+    return htmlcode
+
+
+def zscore_values(series):
+    return (series - series.mean()) / np.std(series)
+
+def stock_bond_correlation_plot(description: str = "Stock bond correlation") -> str:
+    stocks = {}
+    timeperiod = 16
+    interval = 1440
+    months = -12*5 # 5 years
+    try:
+        for symbol in ["SPY", "TLT"]:
+            start_date = datetime.strftime(
+                datetime.now() + relativedelta(months=months), "%Y-%m-%d"
+            )
+            stocks[symbol] = stocks_helper.load(symbol, interval=interval, start_date=start_date)
+            stocks[symbol]['RSI'] = talib.RSI(stocks[symbol]["Close"], timeperiod=timeperiod)[timeperiod:]
+
+        zscore = zscore_values(stocks["SPY"]["RSI"]/stocks["TLT"]["RSI"])
+        option_plot = OpenBBFigure.create_subplots()
+        option_plot.add_scatter(
+            x=zscore.index,
+            y=zscore,
+            name=f"SPY to TLT correlation",
+            orientation="h",
+            showlegend=True,
+            secondary_y=False,
+            line=dict(color="green", width=0.8),
+        )
+
+        option_plot.add_shape(
+            type="line",
+            name="Bull signal",
+            x0=zscore.index[0],
+            y0=2,
+            x1=zscore.index[-1] + timedelta(days=10),
+            y1=2,
+            line=dict(color="white", width=LINE_WIDTH),
+            row=1,
+            col=1,
+            secondary_y=False,
+        )
+
+        option_plot.add_shape(
+            type="line",
+            name="Bear signal",
+            x0=zscore.index[0],
+            y0=-2,
+            x1=zscore.index[-1] + timedelta(days=10),
+            y1=-2,
+            line=dict(color="white", width=LINE_WIDTH),
+            row=1,
+            col=1,
+            secondary_y=False,
+        )
+
+
+        htmlcode = widgets.h(5, description)
+        htmlcode += plot_to_html_image(option_plot)
+    except Exception as error:
+        htmlcode = widgets.h(
+            5,
+            f"Correlation plot exception {error}",
+        )
+
     return htmlcode
