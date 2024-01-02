@@ -83,25 +83,21 @@ class OptionReportV2(AsyncReport):
         full_chain["strike"] = full_chain["strike"].astype(float)
         current_price = yfinance_model.get_price(symbol)
 
-        expirations_call = options.filter_active_open_interest_expirations_in_chain(full_chain, "call")
-        htmlcode += plots.rsi_options_plot(symbol, expirations_call, False)
+        expirations = options.filter_active_open_interest_expirations_in_chain(full_chain, "call")
+        htmlcode += plots.rsi_options_plot(symbol, expirations, False)
         
-        expirations_put = options.filter_active_open_interest_expirations_in_chain(full_chain, "put")
-        htmlcode += plots.rsi_options_plot(symbol, expirations_put)
+        expirations = options.filter_active_open_interest_expirations_in_chain(full_chain, "put")
+        htmlcode += plots.rsi_options_plot(symbol, expirations)
 
         price_range = self.narrow_price_range if symbol in ["SPY", "QQQ"] else self.wide_price_range
         htmlcode += plots.absolute_options_concentration_plot_v2(
-            full_chain[full_chain["expiration"] == expirations_call[0]],
+            full_chain[full_chain["expiration"] == expirations[0]],
             current_price,
             price_range=price_range,
-            description=f"Call: {expirations_call[0]}",
+            description=f"Overview {symbol} {expirations[0]}",
         )
-
-        htmlcode += plots.absolute_options_concentration_plot_v2(
-            full_chain[full_chain["expiration"] == expirations_put[0]],
-            current_price,
-            price_range=price_range,
-            description=f"Put: {expirations_put[0]}",
+        htmlcode += plots.options_gex_plot(
+            full_chain[full_chain["expiration"] == expirations[0]], current_price
         )
 
         htmlcode += plots.long_period_plot_with_extra_data(symbol)
