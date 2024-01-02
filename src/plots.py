@@ -82,13 +82,12 @@ def expiration_concentration_plot(
     htmlcode += plot_to_html_image(option_absolute_plot)
     return htmlcode
 
-def absolute_options_concentration_plot_v2(
+def detailed_option_plot(
     chain: pd.DataFrame,
     current_price: float,
     price_range: float = 0.05,
     description: str = "",
-) -> str:
-    
+) -> str:    
     call_field_name = "openInterest_call"
     put_field_name = "openInterest_put"
 
@@ -376,14 +375,12 @@ def rsi_options_plot(
         opt.puts["optionType"] = "put"
 
         if show_put:
-            option_strike = 0.90 * current_price
             close_to = opt.puts.iloc[
-                (opt.puts["strike"] - option_strike).abs().argsort()[:10]
+                (opt.puts["strike"] - current_price).abs().argsort()[:10]
             ]
         else:
-            option_strike = 1.10 * current_price
             close_to = opt.calls.iloc[
-                (opt.calls["strike"] - option_strike).abs().argsort()[:10]
+                (opt.calls["strike"] - current_price).abs().argsort()[:10]
             ]
         close_to = close_to.sort_values(by=["volume"], ascending=False)
         option_symbol = close_to["contractSymbol"].iloc[0]
@@ -534,6 +531,86 @@ def options_gex_plot(
         5,
         f"GEX only_current_expiration={only_current_expiration}: {current_expiration}, only_next_friday_expiration={only_next_friday_expiration}",
     )
+
+    htmlcode += plot_to_html_image(option_absolute_plot)
+    return htmlcode
+
+
+def options_gex_plot_v2(
+    full_chain: pd.DataFrame,
+    current_price: float,
+    price_range: float = 0.1,
+    description: str  = "GEX"
+) -> str:
+    min_strike = (1 - price_range) * current_price
+    max_strike = (1 + price_range) * current_price
+    div_cont: float = 0
+    rf = None
+    total_gex = defaultdict(list)
+
+    for expiry, chain in full_chain.groupby(["expiration"]):
+        chain = chain[chain["strike"] >= min_strike]
+        chain = chain[chain["strike"] <= max_strike]
+        calls = op_helpers.get_greeks(
+            current_price=current_price,
+            expire=expiry,
+            calls=chain[chain["optionType"] == "call"],
+            puts=chain[chain["optionType"] == "put"],
+            div_cont=div_cont,
+            rf=rf,
+            opt_type=1,
+            show_extra_greeks=False,
+        )
+
+        chain = chain[chain["optionType"] == "call"]
+        for _, row in calls.iterrows():
+            oi = chain[chain["strike"] == row.Strike]
+            total_gex["Strike"].append(row.Strike)
+            total_gex["CALL"].append(oi["openInterest"].iloc[0] * row.Gamma)
+
+    for expiry, chain in full_chain.groupby(["expiration"]):
+        chain = chain[chain["strike"] >= min_strike]
+        chain = chain[chain["strike"] <= max_strike]
+        calls = op_helpers.get_greeks(
+            current_price=current_price,
+            expire=expiry,
+            calls=chain[chain["optionType"] == "call"],
+            puts=chain[chain["optionType"] == "put"],
+            div_cont=div_cont,
+            rf=rf,
+            opt_type=-1,
+            show_extra_greeks=False,
+        )
+
+        chain = chain[chain["optionType"] == "put"]
+        for _, row in calls.iterrows():
+            oi = chain[chain["strike"] == row.Strike]
+            total_gex["PUT"].append(-(oi["openInterest"].iloc[0] * row.Gamma))
+
+    option_absolute_plot = OpenBBFigure()
+    option_absolute_plot.add_bar(
+        x=total_gex["Strike"],
+        y=total_gex["CALL"],
+        name="CALL",
+        marker_color="green",
+        width=0.8,
+    )
+
+    option_absolute_plot.add_bar(
+        x=total_gex["Strike"],
+        y=total_gex["PUT"],
+        name="PUT",
+        marker_color="red",
+        width=0.8,
+    )
+
+    option_absolute_plot.add_vline_legend(
+        x=current_price,
+        name=f"Price: {current_price}",
+        line=dict(width=LINE_WIDTH, color="white"),
+    )
+
+    htmlcode = widgets.h(5, description)
 
     htmlcode += plot_to_html_image(option_absolute_plot)
     return htmlcode

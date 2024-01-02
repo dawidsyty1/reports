@@ -90,14 +90,18 @@ class OptionReportV2(AsyncReport):
         htmlcode += plots.rsi_options_plot(symbol, expirations)
 
         price_range = self.narrow_price_range if symbol in ["SPY", "QQQ"] else self.wide_price_range
-        htmlcode += plots.absolute_options_concentration_plot_v2(
+        # Absolute plots
+        htmlcode += plots.detailed_option_plot(
             full_chain[full_chain["expiration"] == expirations[0]],
             current_price,
             price_range=price_range,
-            description=f"Overview {symbol} {expirations[0]}",
+            description=f"Overview {symbol} {expirations[0]} {int(current_price)}",
         )
-        htmlcode += plots.options_gex_plot(
-            full_chain[full_chain["expiration"] == expirations[0]], current_price
+        htmlcode += plots.options_gex_plot_v2(
+            full_chain[full_chain["expiration"] == expirations[0]],
+            current_price,
+            price_range=price_range,
+            description=f"Overview GEX {symbol} {expirations[0]} {int(current_price)}",
         )
 
         htmlcode += plots.long_period_plot_with_extra_data(symbol)
