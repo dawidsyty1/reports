@@ -624,15 +624,16 @@ def stock_bond_correlation_plot(description: str = "Stock bond correlation") -> 
     timeperiod = 16
     interval = 1440
     months = -12*5 # 5 years
+    start_date = datetime.strftime(
+        datetime.now() + relativedelta(months=months), "%Y-%m-%d"
+    )
     try:
         for symbol in ["SPY", "TLT"]:
-            start_date = datetime.strftime(
-                datetime.now() + relativedelta(months=months), "%Y-%m-%d"
-            )
             stocks[symbol] = stocks_helper.load(symbol, interval=interval, start_date=start_date)
             stocks[symbol]['RSI'] = talib.RSI(stocks[symbol]["Close"], timeperiod=timeperiod)[timeperiod:]
 
         zscore = zscore_values(stocks["SPY"]["RSI"]/stocks["TLT"]["RSI"])
+        
         option_plot = OpenBBFigure.create_subplots()
         option_plot.add_scatter(
             x=zscore.index,
@@ -641,17 +642,17 @@ def stock_bond_correlation_plot(description: str = "Stock bond correlation") -> 
             orientation="h",
             showlegend=True,
             secondary_y=False,
-            line=dict(color="green", width=0.8),
+            line=dict(color="white", width=0.8),
         )
 
         option_plot.add_shape(
             type="line",
             name="Bull signal",
             x0=zscore.index[0],
-            y0=2,
+            y0=1.5,
             x1=zscore.index[-1] + timedelta(days=10),
-            y1=2,
-            line=dict(color="white", width=LINE_WIDTH),
+            y1=1.5,
+            line=dict(color="green", width=LINE_WIDTH),
             row=1,
             col=1,
             secondary_y=False,
@@ -661,10 +662,10 @@ def stock_bond_correlation_plot(description: str = "Stock bond correlation") -> 
             type="line",
             name="Bear signal",
             x0=zscore.index[0],
-            y0=-2,
+            y0=-1.5,
             x1=zscore.index[-1] + timedelta(days=10),
-            y1=-2,
-            line=dict(color="white", width=LINE_WIDTH),
+            y1=-1.5,
+            line=dict(color="red", width=LINE_WIDTH),
             row=1,
             col=1,
             secondary_y=False,
