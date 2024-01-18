@@ -14,6 +14,7 @@ Create .env file with:
     SENDER_NAME=""
     SENDER_EMAIL=""
     RECEIVER_NAME=""
+    FRED_API_KEY=""
 
 Build docker
 
