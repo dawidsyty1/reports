@@ -14,5 +14,5 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
    && make && make check && make install
 
 WORKDIR /usr/src/app
-RUN pip3 install --no-cache-dir -r requirements.txt
 RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir -r requirements.txt
