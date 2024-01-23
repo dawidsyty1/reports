@@ -17,6 +17,8 @@ anyio==3.7.1
     #   starlette
 appdirs==1.4.4
     # via yfinance
+arch==5.6.0
+    # via openbb-econometrics
 argon2-cffi==23.1.0
     # via
     #   jupyter-server
@@ -56,6 +58,8 @@ certifi==2023.7.22
     #   sib-api-v3-sdk
 cffi==1.16.0
     # via argon2-cffi-bindings
+chardet==5.2.0
+    # via reportlab
 charset-normalizer==3.3.0
     # via requests
 click==8.1.7
@@ -64,6 +68,10 @@ click==8.1.7
     #   uvicorn
 comm==0.2.1
     # via ipykernel
+cssselect2==0.7.0
+    # via svglib
+cython==3.0.8
+    # via linearmodels
 debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
@@ -84,6 +92,8 @@ fastapi==0.104.1
     # via openbb-core
 fastjsonschema==2.19.1
     # via nbformat
+formulaic==1.0.1
+    # via linearmodels
 freezegun==1.4.0
     # via pytest-freezegun
 frozendict==2.3.8
@@ -126,8 +136,12 @@ idna==3.4
     #   yarl
 importlib-metadata==6.8.0
     # via openbb-core
+inflection==0.5.1
+    # via nasdaq-data-link
 iniconfig==2.0.0
     # via pytest
+interface-meta==1.3.0
+    # via formulaic
 ipykernel==6.29.0
     # via nbclassic
 ipython==8.20.0
@@ -145,6 +159,8 @@ jinja2==3.1.3
     #   jupyterlab-server
     #   nbclassic
     #   nbconvert
+joblib==1.3.2
+    # via scikit-learn
 json5==0.9.14
     # via jupyterlab-server
 jsonschema==4.21.1
@@ -183,8 +199,12 @@ jupyterlab-server==2.25.2
     # via jupyterlab
 kaleido==0.2.1
     # via -r requirements.in.txt
+linearmodels==4.25
+    # via openbb-econometrics
 lxml==4.9.3
-    # via yfinance
+    # via
+    #   svglib
+    #   yfinance
 markupsafe==2.1.4
     # via
     #   jinja2
@@ -197,12 +217,18 @@ mistune==3.0.2
     # via nbconvert
 monotonic==1.6
     # via posthog
+more-itertools==10.2.0
+    # via nasdaq-data-link
 multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
 multitasking==0.0.11
     # via yfinance
+mypy-extensions==1.0.0
+    # via linearmodels
+nasdaq-data-link==1.0.4
+    # via openbb-nasdaq
 nbclassic==0.5.6
     # via jupyterlab
 nbclient==0.9.0
@@ -217,6 +243,7 @@ nbformat==5.9.2
     #   nbclassic
     #   nbclient
     #   nbconvert
+    #   openbb-charting
 nest-asyncio==1.6.0
     # via
     #   ipykernel
@@ -225,42 +252,79 @@ notebook-shim==0.2.3
     # via nbclassic
 numpy==1.23.4
     # via
+    #   arch
+    #   formulaic
+    #   linearmodels
+    #   nasdaq-data-link
     #   pandas
+    #   patsy
+    #   pyhdfe
+    #   scikit-learn
+    #   scipy
+    #   statsmodels
     #   ta-lib
     #   yfinance
-openbb==4.1.3
-    # via -r requirements.in.txt
+openbb[all]==4.1.3
+    # via
+    #   -r requirements.in.txt
+    #   openbb
+openbb-alpha-vantage==1.1.1
+    # via openbb
 openbb-benzinga==1.1.1
+    # via openbb
+openbb-biztoc==1.1.1
+    # via openbb
+openbb-cboe==1.1.1
+    # via openbb
+openbb-charting==1.1.1
     # via openbb
 openbb-core==1.1.1
     # via
     #   openbb
+    #   openbb-alpha-vantage
     #   openbb-benzinga
+    #   openbb-biztoc
+    #   openbb-cboe
+    #   openbb-charting
     #   openbb-crypto
     #   openbb-currency
     #   openbb-derivatives
+    #   openbb-ecb
+    #   openbb-econometrics
     #   openbb-economy
     #   openbb-equity
     #   openbb-etf
     #   openbb-federal-reserve
+    #   openbb-finra
     #   openbb-fixedincome
     #   openbb-fmp
     #   openbb-fred
+    #   openbb-government-us
     #   openbb-index
     #   openbb-intrinio
+    #   openbb-nasdaq
     #   openbb-news
     #   openbb-oecd
     #   openbb-polygon
+    #   openbb-quantitative
     #   openbb-regulators
     #   openbb-sec
+    #   openbb-seeking-alpha
+    #   openbb-stockgrid
+    #   openbb-technical
     #   openbb-tiingo
     #   openbb-tradingeconomics
+    #   openbb-wsj
     #   openbb-yfinance
 openbb-crypto==1.1.1
     # via openbb
 openbb-currency==1.1.1
     # via openbb
 openbb-derivatives==1.1.1
+    # via openbb
+openbb-ecb==1.1.1
+    # via openbb
+openbb-econometrics==1.1.1
     # via openbb
 openbb-economy==1.1.1
     # via openbb
@@ -270,15 +334,21 @@ openbb-etf==1.1.1
     # via openbb
 openbb-federal-reserve==1.1.1
     # via openbb
+openbb-finra==1.1.1
+    # via openbb
 openbb-fixedincome==1.1.1
     # via openbb
 openbb-fmp==1.1.1
     # via openbb
 openbb-fred==1.1.1
     # via openbb
+openbb-government-us==1.1.1
+    # via openbb
 openbb-index==1.1.1
     # via openbb
 openbb-intrinio==1.1.1
+    # via openbb
+openbb-nasdaq==1.1.2
     # via openbb
 openbb-news==1.1.1
     # via openbb
@@ -286,13 +356,23 @@ openbb-oecd==1.1.1
     # via openbb
 openbb-polygon==1.1.1
     # via openbb
+openbb-quantitative==1.1.1
+    # via openbb
 openbb-regulators==1.1.1
     # via openbb
 openbb-sec==1.1.1
     # via openbb
+openbb-seeking-alpha==1.1.1
+    # via openbb
+openbb-stockgrid==1.1.1
+    # via openbb
+openbb-technical==1.1.2
+    # via openbb
 openbb-tiingo==1.1.1
     # via openbb
 openbb-tradingeconomics==1.1.1
+    # via openbb
+openbb-wsj==1.1.1
     # via openbb
 openbb-yfinance==1.1.1
     # via openbb
@@ -304,25 +384,46 @@ packaging==23.2
     #   jupyterlab
     #   jupyterlab-server
     #   nbconvert
+    #   plotly
     #   pytest
+    #   statsmodels
 pandas==1.5.3
     # via
+    #   arch
+    #   formulaic
+    #   linearmodels
+    #   nasdaq-data-link
     #   openbb-core
+    #   pandas-ta
+    #   statsmodels
     #   yfinance
+pandas-ta==0.3.14b0
+    # via
+    #   openbb-charting
+    #   openbb-quantitative
+    #   openbb-technical
 pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.3
     # via jedi
+patsy==0.5.6
+    # via
+    #   linearmodels
+    #   statsmodels
 peewee==3.17.0
     # via yfinance
 pexpect==4.9.0
     # via ipython
+pillow==10.2.0
+    # via reportlab
 pip-tools==7.3.0
     # via -r requirements.in.txt
 platformdirs==3.11.0
     # via
     #   jupyter-core
     #   requests-cache
+plotly==5.18.0
+    # via openbb-charting
 pluggy==1.3.0
     # via pytest
 posthog==3.0.2
@@ -333,6 +434,10 @@ prometheus-client==0.19.0
     #   nbclassic
 prompt-toolkit==3.0.43
     # via ipython
+property-cached==1.6.4
+    # via
+    #   arch
+    #   linearmodels
 protobuf==3.20.1
     # via
     #   google-api-core
@@ -364,16 +469,21 @@ pygments==2.17.2
     # via
     #   ipython
     #   nbconvert
+pyhdfe==0.2.0
+    # via linearmodels
 pyproject-hooks==1.0.0
     # via build
 pytest==7.4.4
     # via pytest-freezegun
 pytest-freezegun==0.4.2
-    # via openbb-sec
+    # via
+    #   openbb-sec
+    #   openbb-stockgrid
 python-dateutil==2.8.2
     # via
     #   freezegun
     #   jupyter-client
+    #   nasdaq-data-link
     #   pandas
     #   posthog
     #   sib-api-v3-sdk
@@ -387,28 +497,41 @@ pytz==2023.3.post1
     # via
     #   pandas
     #   yfinance
+pywry==0.6.2
+    # via openbb-charting
 pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
     #   jupyter-server
     #   nbclassic
+random-user-agent==1.0.1
+    # via
+    #   openbb-government-us
+    #   openbb-nasdaq
 referencing==0.32.1
     # via
     #   jsonschema
     #   jsonschema-specifications
+reportlab==4.0.9
+    # via
+    #   openbb-charting
+    #   svglib
 requests==2.31.0
     # via
     #   -r requirements.in.txt
     #   google-api-core
     #   google-cloud-storage
     #   jupyterlab-server
+    #   nasdaq-data-link
     #   openbb-core
     #   posthog
     #   requests-cache
     #   yfinance
 requests-cache==1.1.1
     # via
+    #   openbb-biztoc
+    #   openbb-cboe
     #   openbb-intrinio
     #   openbb-sec
 rpds-py==0.17.1
@@ -421,10 +544,26 @@ rsa==4.9
     #   python-jose
 ruff==0.1.14
     # via openbb-core
+scikit-learn==1.4.0
+    # via openbb-technical
+scipy==1.12.0
+    # via
+    #   arch
+    #   formulaic
+    #   linearmodels
+    #   openbb-charting
+    #   openbb-econometrics
+    #   openbb-quantitative
+    #   openbb-technical
+    #   pyhdfe
+    #   scikit-learn
+    #   statsmodels
 send2trash==1.8.2
     # via
     #   jupyter-server
     #   nbclassic
+setproctitle==1.3.3
+    # via pywry
 sib-api-v3-sdk==7.6.0
     # via -r requirements.in.txt
 six==1.16.0
@@ -433,6 +572,8 @@ six==1.16.0
     #   bleach
     #   ecdsa
     #   html5lib
+    #   nasdaq-data-link
+    #   patsy
     #   posthog
     #   python-dateutil
     #   sib-api-v3-sdk
@@ -445,14 +586,31 @@ stack-data==0.6.3
     # via ipython
 starlette==0.27.0
     # via fastapi
+statsmodels==0.14.1
+    # via
+    #   arch
+    #   linearmodels
+    #   openbb-charting
+    #   openbb-econometrics
+    #   openbb-quantitative
+    #   openbb-technical
+svglib==1.5.1
+    # via openbb-charting
 ta-lib==0.4.28
     # via -r requirements.in.txt
+tenacity==8.2.3
+    # via plotly
 terminado==0.18.0
     # via
     #   jupyter-server
     #   nbclassic
+threadpoolctl==3.2.0
+    # via scikit-learn
 tinycss2==1.2.1
-    # via nbconvert
+    # via
+    #   cssselect2
+    #   nbconvert
+    #   svglib
 tomli==2.0.1
     # via
     #   build
@@ -484,6 +642,7 @@ typing-extensions==4.8.0
     # via
     #   cattrs
     #   fastapi
+    #   formulaic
     #   pydantic
     #   pydantic-core
     #   uvicorn
@@ -504,6 +663,7 @@ wcwidth==0.2.13
 webencodings==0.5.1
     # via
     #   bleach
+    #   cssselect2
     #   html5lib
     #   tinycss2
 websocket-client==1.7.0
@@ -512,8 +672,12 @@ websockets==12.0
     # via openbb-core
 wheel==0.41.2
     # via pip-tools
+wrapt==1.16.0
+    # via formulaic
 xmltodict==0.13.0
-    # via openbb-sec
+    # via
+    #   openbb-ecb
+    #   openbb-sec
 yarl==1.9.2
     # via aiohttp
 yfinance==0.2.31
