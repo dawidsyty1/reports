@@ -30,7 +30,7 @@ def process(send, report_type):
             author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
         )
     else:
-        tickers = ["^SPX", "^VIX", "^DJI", "^TYX", "SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
+        tickers = ["^SPX", "^VIX", "SPY", "SPXL", "QQQ", "IWM", "DIA", "GLD", "TLT", "SMH", "SOXL", "USO"]
 
         report = OptionReportV2(
             author="Dawid S.", report_title="Options Report", tickers=tickers, multiprocessing=True
