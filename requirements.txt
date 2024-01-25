@@ -1095,7 +1095,7 @@ yarl==1.9.2
     # via
     #   aiohttp
     #   ccxt
-yfinance==0.2.31
+yfinance==0.2.36
     # via openbb
 ypy-websocket==0.8.4
     # via jupyter-server-ydoc
