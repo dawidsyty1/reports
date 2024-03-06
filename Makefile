@@ -27,3 +27,8 @@ update_and_generate: ## update code and generate report
 
 check_pre_commit: ## check pre-commit
 	pre-commit run --all-files
+
+update_and_upload_chains: ## update code and push chains in to bucket
+	git pull origin main
+	docker-compose build
+	docker-compose run generator bash -c "python src/chains.py"
