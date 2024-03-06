@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 sorted_chain_columns = [
+    "contractSymbol",
     "optionType",
     "expiration",
     "strike",
@@ -15,6 +16,7 @@ sorted_chain_columns = [
     "ask",
     "openInterest",
     "volume",
+    "impliedVolatility",
 ]
 
 
